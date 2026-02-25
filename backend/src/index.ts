@@ -146,7 +146,7 @@ async function startServer() {
     // Rate limiting configuration
     const authLimiter = rateLimit({
       windowMs: 60 * 1000, // 1 minute
-      max: 5, // 5 requests per minute
+      max: 50, // 50 requests per minute
       message: { error: 'Too many authentication attempts, please try again later' },
       standardHeaders: true,
       legacyHeaders: false,
