@@ -12,6 +12,7 @@ import caseRoutes from './routes/cases';
 import userRoutes from './routes/user';
 import adminRoutes from './routes/admin';
 import verifyRoutes from './routes/verify';
+import setupRoutes from './routes/setup';
 
 // Load environment variables
 dotenv.config();
@@ -108,6 +109,9 @@ async function startServer() {
         environment: process.env.NODE_ENV || 'development'
       });
     });
+
+    // Setup endpoint (no authentication or rate limiting)
+    app.use('/api/setup', setupRoutes);
 
     // Rate limiting configuration
     const authLimiter = rateLimit({
