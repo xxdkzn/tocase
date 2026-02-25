@@ -314,24 +314,28 @@ export async function initializeDatabase(): Promise<IDatabase> {
     };
   } else if (dbType === 'supabase') {
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY;
+    const databasePassword = process.env.DATABASE_PASSWORD;
 
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error('SUPABASE_URL and SUPABASE_KEY must be set when using Supabase');
+    if (!supabaseUrl || !databasePassword) {
+      throw new Error('SUPABASE_URL and DATABASE_PASSWORD must be set when using Supabase');
     }
 
-    // Construct PostgreSQL connection string for Supabase
-    const connectionString = `postgresql://postgres:${supabaseKey}@${supabaseUrl.replace('https://', '').replace('http://', '')}:5432/postgres`;
+    // Extract project reference from Supabase URL
+    const projectRef = supabaseUrl.replace('https://', '').replace('http://', '').split('.')[0];
+    
+    // Construct PostgreSQL connection string for Supabase with connection pooler
+    const connectionString = `postgresql://postgres.${projectRef}:${databasePassword}@aws-0-eu-central-1.pooler.supabase.com:6543/postgres`;
 
     config.supabase = {
       connectionString,
       poolConfig: {
-        max: 10, // Free tier limit
+        max: 5,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000,
+        connectionTimeoutMillis: 5000,
       },
     };
   }
+
 
   DatabaseManager.configure(config);
   return DatabaseManager.getConnection();
