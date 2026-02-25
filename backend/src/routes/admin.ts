@@ -200,7 +200,7 @@ router.post('/users/:id/unblock', requireAdmin, async (req: AuthenticatedRequest
 router.post('/cases', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { name, description, price, imageUrl } = req.body;
-    const caseId = await createCase({ name, description, price, imageUrl });
+    const caseId = await createCase(name, description, price, imageUrl);
     return res.status(201).json({ caseId });
   } catch (error) {
     console.error('[Admin API] Failed to create case:', error);

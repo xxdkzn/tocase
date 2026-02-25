@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { verifyResult } from '../services/rngService';
-import { getCaseWithNFTs, calculateDropProbabilities } from '../services/caseService';
+import { getCaseWithNFTs } from '../services/caseService';
 
 const router = Router();
 
@@ -12,12 +12,18 @@ router.post('/api/verify', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const caseData = await getCaseWithNFTs(caseId);
+    const caseIdNum = parseInt(caseId, 10);
+    const caseData = await getCaseWithNFTs(caseIdNum);
     if (!caseData) {
       return res.status(404).json({ error: 'Case not found' });
     }
 
-    const probabilities = calculateDropProbabilities(caseData.nfts);
+    // Map NFTs to probability format
+    const probabilities = caseData.nfts.map(nft => ({
+      nftId: nft.id,
+      probability: nft.drop_probability
+    }));
+
     const { isValid, selectedNFT } = verifyResult(
       serverSeed,
       clientSeed,

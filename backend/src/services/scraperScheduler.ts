@@ -1,4 +1,4 @@
-import cron from 'node-cron';
+import cron, { ScheduledTask } from 'node-cron';
 import { updateNFTData, UpdateResult } from './nftScraper';
 
 /**
@@ -19,7 +19,7 @@ interface UpdateProgress {
 }
 
 class ScraperScheduler {
-  private task: cron.ScheduledTask | null = null;
+  private task: ScheduledTask | null = null;
   private config: SchedulerConfig;
   private progress: UpdateProgress = {
     isRunning: false,
@@ -56,7 +56,6 @@ class ScraperScheduler {
         await this.runUpdate();
       },
       {
-        scheduled: true,
         timezone: 'UTC',
       }
     );

@@ -33,6 +33,7 @@ export interface IDatabase {
   get<T = QueryResultRow>(sql: string, params?: any[]): Promise<T | undefined>;
   transaction<T>(callback: () => Promise<T>): Promise<T>;
   close(): Promise<void>;
+  connect(): Promise<void>;
 }
 
 /**

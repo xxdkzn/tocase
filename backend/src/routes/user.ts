@@ -1,12 +1,12 @@
-import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
+import { Router, Response } from 'express';
+import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import { getUserById, getUserInventory, sellNFT, getOpeningHistory } from '../services/userService';
 import { checkBalanceIncreaseRate } from '../services/antiAbuseService';
 
 const router = Router();
 
 // GET /api/user/profile - Get user profile
-router.get('/profile', requireAuth, async (req, res) => {
+router.get('/profile', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const user = await getUserById(req.user!.userId);
     res.status(200).json(user);
@@ -16,7 +16,7 @@ router.get('/profile', requireAuth, async (req, res) => {
 });
 
 // GET /api/user/inventory - Get user inventory
-router.get('/inventory', requireAuth, async (req, res) => {
+router.get('/inventory', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const inventory = await getUserInventory(req.user!.userId);
     res.status(200).json(inventory);
@@ -26,12 +26,12 @@ router.get('/inventory', requireAuth, async (req, res) => {
 });
 
 // POST /api/user/inventory/:id/sell - Sell NFT
-router.post('/inventory/:id/sell', requireAuth, async (req, res) => {
+router.post('/inventory/:id/sell', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const itemId = parseInt(req.params.id);
+    const itemId = parseInt(req.params.id, 10);
     const userId = req.user!.userId;
 
-    const isAbuse = await checkBalanceIncreaseRate(userId);
+    const isAbuse = await checkBalanceIncreaseRate(userId, 0);
     if (isAbuse) {
       return res.status(403).json({ error: 'Suspicious activity detected' });
     }
@@ -47,7 +47,7 @@ router.post('/inventory/:id/sell', requireAuth, async (req, res) => {
 });
 
 // GET /api/user/history - Get opening history with pagination
-router.get('/history', requireAuth, async (req, res) => {
+router.get('/history', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const rarityFilter = req.query.rarityFilter as string | undefined;

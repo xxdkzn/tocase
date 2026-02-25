@@ -1,5 +1,5 @@
-import { Router, Request, Response } from 'express';
-import { requireAuth } from '../middleware/auth';
+import { Router, Response } from 'express';
+import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import { getAllCases, getCaseWithNFTs, openCase } from '../services/caseService';
 import { isUserBlocked, checkCaseOpeningRate } from '../services/antiAbuseService';
 import { addExperience } from '../services/userService';
@@ -7,7 +7,7 @@ import { addExperience } from '../services/userService';
 const router = Router();
 
 // GET /api/cases - List all enabled cases
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const cases = await getAllCases(true);
     res.status(200).json(cases);
@@ -17,9 +17,10 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/cases/:id - Get case details with NFT list
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const caseData = await getCaseWithNFTs(req.params.id);
+    const caseId = parseInt(req.params.id, 10);
+    const caseData = await getCaseWithNFTs(caseId);
     if (!caseData) {
       return res.status(404).json({ error: 'Case not found' });
     }
@@ -30,10 +31,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 // POST /api/cases/:id/open - Open case (requires auth)
-router.post('/:id/open', requireAuth, async (req: Request, res: Response) => {
+router.post('/:id/open', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user!.id;
-    const caseId = req.params.id;
+    const userId = req.user!.userId;
+    const caseId = parseInt(req.params.id, 10);
 
     // Check if user is blocked
     if (await isUserBlocked(userId)) {
