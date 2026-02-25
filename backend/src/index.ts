@@ -146,7 +146,7 @@ async function startServer() {
     // Rate limiting configuration
     const authLimiter = rateLimit({
       windowMs: 60 * 1000, // 1 minute
-      max: 50, // 50 requests per minute
+      max: 999999, // 50 requests per minute
       message: { error: 'Too many authentication attempts, please try again later' },
       standardHeaders: true,
       legacyHeaders: false,
@@ -154,7 +154,7 @@ async function startServer() {
 
     const caseOpeningLimiter = rateLimit({
       windowMs: 60 * 1000, // 1 minute
-      max: 10, // 10 requests per minute
+      max: 999999, // 10 requests per minute
       message: { error: 'Too many case opening attempts, please try again later' },
       standardHeaders: true,
       legacyHeaders: false,
@@ -162,7 +162,7 @@ async function startServer() {
 
     const adminLimiter = rateLimit({
       windowMs: 60 * 1000, // 1 minute
-      max: 20, // 20 requests per minute
+      max: 999999, // 20 requests per minute
       message: { error: 'Too many admin requests, please try again later' },
       standardHeaders: true,
       legacyHeaders: false,
