@@ -92,7 +92,7 @@ const HomePage: React.FC = () => {
                   <Button
                     variant="primary"
                     className="!px-3 !py-1 text-xs"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       navigate(`/case/${caseItem.id}`);
                     }}

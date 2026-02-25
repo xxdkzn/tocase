@@ -43,7 +43,7 @@ const sortInventory = (items: InventoryItem[]): InventoryItem[] => {
   });
 };
 
-export const useInventoryStore = create<InventoryState>((set, get) => ({
+export const useInventoryStore = create<InventoryState>((set) => ({
   items: [],
   loading: false,
 

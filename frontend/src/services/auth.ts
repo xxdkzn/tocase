@@ -20,7 +20,7 @@ interface AuthResponse {
 export const authenticateWithTelegram = async (initData: string): Promise<AuthResponse> => {
   try {
     const response = await apiClient.post<AuthResponse>('/auth/telegram', { initData });
-    const { token, user } = response.data;
+    const { token } = response.data;
     
     // Store token in memory
     setToken(token);
