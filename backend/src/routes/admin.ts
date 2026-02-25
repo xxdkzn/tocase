@@ -99,12 +99,12 @@ router.get('/nft/status', requireAdmin, async (req: AuthenticatedRequest, res: R
       nftCount,
       lastResult: progress.lastResult
         ? {
-            success: progress.lastResult.success,
-            nftsCreated: progress.lastResult.nftsCreated,
-            nftsUpdated: progress.lastResult.nftsUpdated,
-            timestamp: progress.lastResult.timestamp,
-            errorCount: progress.lastResult.errors.length,
-          }
+          success: progress.lastResult.success,
+          nftsCreated: progress.lastResult.nftsCreated,
+          nftsUpdated: progress.lastResult.nftsUpdated,
+          timestamp: progress.lastResult.timestamp,
+          errorCount: progress.lastResult.errors.length,
+        }
         : null,
     });
   } catch (error) {
@@ -263,6 +263,36 @@ router.post('/cases/import', requireAdmin, async (req: AuthenticatedRequest, res
     console.error('[Admin API] Failed to import case configuration:', error);
     return res.status(500).json({
       error: 'Failed to import case configuration',
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
+    });
+  }
+});
+
+/**
+ * POST /api/admin/migrate
+ * Run database migrations
+ * Requires admin authentication
+ */
+router.post('/migrate', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    console.log(`[Admin API] Database migration triggered by ${req.user?.username} at ${new Date().toISOString()}`);
+    
+    const { getDatabase } = await import('../services/database');
+    const { createMigrationRunner } = await import('../services/migrations');
+    const { migrations } = await import('../migrations');
+    
+    const db = await getDatabase();
+    const runner = await createMigrationRunner(db, migrations);
+    await runner.up();
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Database migrations completed successfully'
+    });
+  } catch (error) {
+    console.error('[Admin API] Migration failed:', error);
+    return res.status(500).json({
+      error: 'Migration failed',
       message: error instanceof Error ? error.message : 'An unexpected error occurred',
     });
   }
