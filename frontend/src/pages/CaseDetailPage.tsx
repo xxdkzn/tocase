@@ -252,8 +252,8 @@ const CaseDetailPage: React.FC = () => {
       {showAnimation && wonNFT && (
         <Suspense fallback={<LoadingSpinner />}>
           <CaseOpeningAnimation
-            caseNFTs={caseData.nfts}
-            wonNFT={wonNFT}
+            winningNFT={wonNFT}
+            allNFTs={caseData.nfts}
             onComplete={handleAnimationComplete}
           />
         </Suspense>

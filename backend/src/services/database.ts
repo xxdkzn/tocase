@@ -313,28 +313,41 @@ export async function initializeDatabase(): Promise<IDatabase> {
       path: process.env.DATABASE_PATH || './data/database.sqlite',
     };
   } else if (dbType === 'supabase') {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const databasePassword = process.env.DATABASE_PASSWORD;
+    // Option 1: Use direct connection string (recommended)
+    const connectionString = process.env.DATABASE_CONNECTION_STRING;
 
-    if (!supabaseUrl || !databasePassword) {
-      throw new Error('SUPABASE_URL and DATABASE_PASSWORD must be set when using Supabase');
+    if (connectionString) {
+      config.supabase = {
+        connectionString,
+        poolConfig: {
+          max: 5,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 5000,
+        },
+      };
+    } else {
+      // Option 2: Construct from parts (fallback)
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const databasePassword = process.env.DATABASE_PASSWORD;
+
+      if (!supabaseUrl || !databasePassword) {
+        throw new Error('Either DATABASE_CONNECTION_STRING or (SUPABASE_URL and DATABASE_PASSWORD) must be set');
+      }
+
+      const projectRef = supabaseUrl.replace('https://', '').replace('http://', '').split('.')[0];
+      const connectionString = `postgresql://postgres.${projectRef}:${databasePassword}@aws-0-eu-central-1.pooler.supabase.com:6543/postgres`;
+
+      config.supabase = {
+        connectionString,
+        poolConfig: {
+          max: 5,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 5000,
+        },
+      };
     }
-
-    // Extract project reference from Supabase URL
-    const projectRef = supabaseUrl.replace('https://', '').replace('http://', '').split('.')[0];
-    
-    // Construct PostgreSQL connection string for Supabase with connection pooler
-    const connectionString = `postgresql://postgres.${projectRef}:${databasePassword}@aws-0-eu-central-1.pooler.supabase.com:6543/postgres`;
-
-    config.supabase = {
-      connectionString,
-      poolConfig: {
-        max: 5,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
-      },
-    };
   }
+
 
 
   DatabaseManager.configure(config);
