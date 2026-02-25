@@ -5,7 +5,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { initializeDatabase, closeDatabase } from './services/database';
 import { initializeBot } from './bot';
-import { logError, logInfo, logRequest } from './services/logger';
+import { logError, logRequest } from './services/logger';
 import { responseTimeMiddleware, startMonitoring, stopMonitoring } from './services/monitoring';
 import authRoutes from './routes/auth';
 import caseRoutes from './routes/cases';
@@ -55,28 +55,58 @@ async function startServer() {
     app.use((req: Request, res: Response, next: NextFunction) => {
       // HSTS - Force HTTPS for 1 year
       res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-      
+
       // Content Security Policy - Restrict resource loading
       res.setHeader(
         'Content-Security-Policy',
         "default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.telegram.org; frame-ancestors 'none';"
       );
-      
+
       // Prevent clickjacking
       res.setHeader('X-Frame-Options', 'DENY');
-      
+
       // Prevent MIME type sniffing
       res.setHeader('X-Content-Type-Options', 'nosniff');
-      
+
       // XSS Protection (legacy browsers)
       res.setHeader('X-XSS-Protection', '1; mode=block');
-      
+
       next();
     });
 
     // Middleware setup (in order)
     app.use(compression());
-    app.use(cors({ origin: FRONTEND_URL }));
+
+    // CORS configuration - allow Vercel preview URLs
+    const corsOptions = {
+      origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) {
+          return callback(null, true);
+        }
+
+        // Allow main frontend URL
+        if (origin === FRONTEND_URL) {
+          return callback(null, true);
+        }
+
+        // Allow Vercel preview URLs (*.vercel.app)
+        if (origin.endsWith('.vercel.app')) {
+          return callback(null, true);
+        }
+
+        // Allow localhost for development
+        if (origin.includes('localhost')) {
+          return callback(null, true);
+        }
+
+        // Reject other origins
+        callback(new Error('Not allowed by CORS'));
+      },
+      credentials: true,
+    };
+
+    app.use(cors(corsOptions));
     app.use(express.json());
 
     // Response time tracking middleware
@@ -103,8 +133,8 @@ async function startServer() {
 
     // Health check endpoint (for monitoring services like Render)
     app.get('/api/health', (req: Request, res: Response) => {
-      res.json({ 
-        status: 'ok', 
+      res.json({
+        status: 'ok',
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development'
       });
@@ -157,10 +187,10 @@ async function startServer() {
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       // Log error with full context
       logError(err.message || 'Internal Server Error', req, err);
-      
+
       // Also log to console for immediate visibility
       console.error('Error:', err);
-      
+
       res.status(500).json({
         error: 'Internal Server Error',
         message: process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred'
@@ -171,7 +201,7 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
       console.log('Server ready');
-      
+
       // Start resource monitoring
       startMonitoring();
     });
@@ -201,4 +231,4 @@ process.on('SIGTERM', shutdown);
 // Start the server
 startServer();
 
-export {};
+export { };
