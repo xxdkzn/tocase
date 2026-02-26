@@ -38,26 +38,6 @@ app.post('/auth/telegram', async (req, res) => {
   res.json(data);
 });
 
-// 1. Авторизация через Telegram
-app.post('/auth/telegram', async (req, res) => {
-  const { id, username, first_name } = req.body;
-
-  if (!id) return res.status(400).json({ error: 'No ID provided' });
-
-  const { data, error } = await supabase
-    .from('users')
-    .upsert({ 
-      telegram_id: id, 
-      username: username || first_name,
-      balance: 1000 
-    }, { onConflict: 'telegram_id' })
-    .select()
-    .single();
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
-});
-
 // 1. Синхронизация NFT (Админ)
 app.post('/api/admin/sync-nft', async (req, res) => {
   const { admin_secret } = req.body;
@@ -127,3 +107,5 @@ app.post('/api/cases/open', async (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
