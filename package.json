@@ -1,27 +1,24 @@
 {
-  "name": "telegram-nft-case-opener",
+  "name": "tocase",
   "version": "1.0.0",
-  "description": "Premium Telegram Mini App for NFT case opening with provably fair mechanics",
-  "private": true,
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev:backend": "npm run dev --workspace=backend",
-    "dev:frontend": "npm run dev --workspace=frontend",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "build:backend": "npm run build --workspace=backend",
-    "build:frontend": "npm run build --workspace=frontend",
-    "build": "npm run build:backend && npm run build:frontend",
-    "lint": "npm run lint --workspaces",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xxdkzn/tocase.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/xxdkzn/tocase/issues"
+  },
+  "homepage": "https://github.com/xxdkzn/tocase#readme",
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "prettier": "^3.1.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "nodemon": "^3.1.14"
   }
 }
