@@ -1,6 +1,6 @@
 import { Telegraf, Markup } from 'telegraf';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-sdk';
+import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
@@ -33,4 +33,3 @@ bot.start(async (ctx) => {
 });
 
 bot.launch();
-console.log('Bot started successfully');

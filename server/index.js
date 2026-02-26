@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-sdk';
+import { createClient } from '@supabase/supabase-js';
 import { parseGetGemsGifts } from './parser.js';
 
 dotenv.config();
@@ -23,16 +23,16 @@ app.post('/api/admin/sync-nft', async (req, res) => {
   }
 
   const items = await parseGetGemsGifts();
-  
+
   if (items.length > 0) {
     const { error } = await supabase
       .from('items')
       .upsert(items, { onConflict: 'name' });
-    
+
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, count: items.length });
   }
-  
+
   res.status(500).json({ error: 'No items parsed' });
 });
 
@@ -43,7 +43,7 @@ app.get('/api/user/:id', async (req, res) => {
     .select('*')
     .eq('telegram_id', req.params.id)
     .single();
-  
+
   if (error && error.code !== 'PGRST116') return res.status(500).json({ error: error.message });
   res.json(data || { error: 'Not found' });
 });
@@ -53,7 +53,7 @@ app.get('/api/cases', async (req, res) => {
   const { data, error } = await supabase
     .from('cases')
     .select('*');
-  
+
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
@@ -69,7 +69,7 @@ app.post('/api/cases/open', async (req, res) => {
     return res.status(400).json({ error: 'Insufficient balance or invalid case' });
   }
 
-  const items = caseData.items; 
+  const items = caseData.items;
   const winningItem = items[Math.floor(Math.random() * items.length)];
 
   await supabase.from('users').update({ balance: userData.balance - caseData.price }).eq('telegram_id', userId);

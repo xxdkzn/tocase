@@ -23,5 +23,14 @@
   "homepage": "https://github.com/xxdkzn/tocase#readme",
   "devDependencies": {
     "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "@supabase/supabase-js": "^2.43.4",
+    "axios": "^1.7.2",
+    "cheerio": "^1.0.0-rc.12"
   }
 }
