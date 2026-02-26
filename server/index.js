@@ -7,13 +7,56 @@ import { parseGetGemsGifts } from './parser.js';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: '*', // Для разработки можно оставить так, или укажи свой домен Vercel
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
-
 const supabase = createClient(
   process.env.SUPABASE_URL || '',
   process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
+
+// 1. Авторизация через Telegram
+app.post('/auth/telegram', async (req, res) => {
+  const { id, username, first_name } = req.body;
+
+  if (!id) return res.status(400).json({ error: 'No ID provided' });
+
+  const { data, error } = await supabase
+    .from('users')
+    .upsert({ 
+      telegram_id: id, 
+      username: username || first_name,
+      balance: 1000 
+    }, { onConflict: 'telegram_id' })
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// 1. Авторизация через Telegram
+app.post('/auth/telegram', async (req, res) => {
+  const { id, username, first_name } = req.body;
+
+  if (!id) return res.status(400).json({ error: 'No ID provided' });
+
+  const { data, error } = await supabase
+    .from('users')
+    .upsert({ 
+      telegram_id: id, 
+      username: username || first_name,
+      balance: 1000 
+    }, { onConflict: 'telegram_id' })
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
 
 // 1. Синхронизация NFT (Админ)
 app.post('/api/admin/sync-nft', async (req, res) => {
@@ -84,5 +127,3 @@ app.post('/api/cases/open', async (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
